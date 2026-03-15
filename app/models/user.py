@@ -3,7 +3,14 @@ from datetime import datetime, timezone
 
 
 class User:
-    def __init__(self, email, full_name, password_hash=None, id=None, created_at=None):
+    def __init__(
+            self, 
+            email: str, 
+            full_name: str, 
+            password_hash: str | None = None, 
+            id: int | None = None, 
+            created_at: datetime | None = None
+        ):
 
         if "@" not in email:
             raise ValueError("Invalid email, '@' is missing!")
@@ -19,12 +26,13 @@ class User:
 
 
     @property
-    def first_name(self):
-        return self.full_name.split()[0] if self.full_name else ""
+    def first_name(self) -> str:
+        parts = self.full_name.split()
+        return parts[0] if parts else ""
 
 
     @property
-    def email_domain(self):
+    def email_domain(self) -> str:
         return self.email.split('@')[-1]
 
 
@@ -36,7 +44,7 @@ class User:
 
 
     @classmethod
-    def new(cls, email, full_name, password):
+    def new(cls, email: str, full_name: str, password: str) -> "User":
         password_hash = cls._hash_password(password)
         return cls(
             email=email,
@@ -54,17 +62,6 @@ class User:
     def __repr__(self):
         return f"<User {self.email}>"
     
-"""
-//тест
-    if __name__ == "__main__":
-        # Создаем пользователя
-        user = User.new("ivan@mail.ru", "Иван Петров", "mypass123")
-        
-        # Проверяем свойства
-        print(user)
-        print(f"First name: {user.first_name}")
-        print(f"Email domain: {user.email_domain}")
-        print(f"Password hash: {user.password_hash}")
-        print(f"Password verify: {user.verify_password('mypass123')}")  # True
-        print(f"Password verify: {user.verify_password('wrong')}")     # False
-"""
+    #когда надо будет работать с репозиториями
+    def change_password(self):
+        pass

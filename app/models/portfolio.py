@@ -12,8 +12,16 @@ class Currency(Enum):
 
 
 class Portfolio:
-    def __init__(self, user_id, name, currency: Currency, id=None, 
-                 description=None, created_at=None, is_active=True):
+    def __init__(        
+            self,
+            user_id: int,
+            name: str,
+            currency: Currency,
+            id: int | None = None,
+            description: str | None = None,
+            created_at: datetime | None = None,
+            is_active: bool = True
+        ):
 
         if not name or not name.strip():
             raise ValueError("Portfolio name cannot be empty")
@@ -30,7 +38,7 @@ class Portfolio:
         self.is_active = is_active
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         return f"{self.name} ({self.currency.value})"
 
     def deactivate(self):
@@ -39,11 +47,11 @@ class Portfolio:
     def activate(self):
         self.is_active = True
     
-    def belongs_to(self, user_id):
+    def belongs_to(self, user_id: int) -> bool:
         return self.user_id == user_id
     
     @classmethod
-    def create_default(cls, user_id, currency=Currency.USD):
+    def create_default(cls, user_id: int, currency: Currency = Currency.USD) -> "Portfolio":
         return cls(
             user_id=user_id,
             name="Main",
@@ -52,26 +60,11 @@ class Portfolio:
     
     def __repr__(self):
         return f"<Portfolio {self.display_name}>"
+    
+    #добавить потом
+    def rename(self, new_name):
+        pass
 
-"""
-    if __name__ == "__main__":
-        # Создаем портфель
-        p1 = Portfolio(
-            user_id=1,
-            name="  Пенсионный  ",
-            currency=Currency.USD,
-            description="Для старости"
-        )
-        
-        print(p1)  # <Portfolio Пенсионный (USD)>
-        print(p1.display_name)  # Пенсионный (USD)
-        print(f"Принадлежит пользователю 1? {p1.belongs_to(1)}")  # True
-        print(f"Принадлежит пользователю 2? {p1.belongs_to(2)}")  # False
-        
-        # Создаем портфель по умолчанию
-        p2 = Portfolio.create_default(user_id=1, currency=Currency.EUR)
-        print(p2)  # <Portfolio Основной (EUR)>
-        
-        p2.deactivate()
-        print(f"Активен? {p2.is_active}")  # False
-"""
+    #это тоже    
+    def change_currency(self, new_currency):
+        pass
