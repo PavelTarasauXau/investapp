@@ -1,0 +1,80 @@
+# Виртуальное окружение
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python-version
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# База данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Миграции Alembic (версии миграций нужно коммитить, но не кэш)
+alembic/versions/__pycache__/
+
+# Логи
+*.log
+logs/
+*.log.*
+
+# Тесты
+.tmp_test/
+.tmp/
+
+# Файлы конфигурации с секретами (создай .env.example для примера)
+.env
+.env.local
+.env.production
+.env.development
+!.env.example
+
+# Директории для загрузок
+uploads/
+media/
+static/uploads/
+
+# Файлы с переменными окружения
+*.key
+*.pem
+*.crt
+
+# Jupyter Notebooks (если используешь)
+.ipynb_checkpoints/
+*.ipynb
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Приложение
+app/__pycache__/
+app/**/__pycache__/
+
+# Пакеты
+*.egg-info/
+dist/
+build/
