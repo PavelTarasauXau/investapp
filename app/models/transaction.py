@@ -66,7 +66,7 @@ class Transaction:
         asset_id: int,
         quantity: Decimal,
         price: Decimal,
-        **kwargs #что за kwargs 
+        **kwargs  
         ) -> Transaction:
         
             return cls(
