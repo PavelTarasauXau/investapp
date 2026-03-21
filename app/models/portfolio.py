@@ -60,11 +60,16 @@ class Portfolio:
     
     def __repr__(self):
         return f"<Portfolio {self.display_name}>"
-    
-    #добавить потом
-    def rename(self, new_name):
-        pass
+        
+    def rename(self, new_name: str):
+        if not new_name.strip():
+            raise ValueError ("Name field cant be empty")
+        else:
+            self.name = new_name.strip()
 
-    #это тоже    
+
     def change_currency(self, new_currency):
-        pass
+        if not isinstance(new_currency, Currency):
+            raise ValueError("Invalid currency")
+        else:
+            self.currency = new_currency

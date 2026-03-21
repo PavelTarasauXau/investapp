@@ -1,12 +1,11 @@
 from enum import Enum
-from decimal import Decimal
 import re
 
 class AssetType(Enum):
     STOCK = "stock"
     BOND = "bond"
     ETF = "etf"
-    CURRENCY = "currency" #можно добавить металлы, нефть
+    CURRENCY = "currency" 
 
 class Asset:
 
