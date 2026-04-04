@@ -1,6 +1,7 @@
-import hashlib
 from datetime import datetime, timezone
+from passlib.context import CryptContext
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class User:
     def __init__(
@@ -36,15 +37,18 @@ class User:
         return self.email.split('@')[-1]
 
 
-    def verify_password(self, password):
-        """Проверяет, совпадает ли введенный пароль с хешем"""
+
+    def verify_password(self, password: str) -> bool:
         if not self.password_hash:
             return False
-        return self.password_hash == self._hash_password(password)
+        return pwd_context.verify(password, self.password_hash) 
 
 
     @classmethod
     def new(cls, email: str, full_name: str, password: str) -> "User":
+        if len(password) < 6:
+            raise ValueError("Password must be at least 6 characters long")
+
         password_hash = cls._hash_password(password)
         return cls(
             email=email,
@@ -55,8 +59,8 @@ class User:
 
 
     @staticmethod
-    def _hash_password(password):
-        return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    def _hash_password(password: str) -> str:
+        return pwd_context.hash(password)
 
     
     def __repr__(self):
