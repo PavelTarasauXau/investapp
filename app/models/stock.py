@@ -1,35 +1,11 @@
-from .asset import Asset, AssetType
+from sqlalchemy import String, Integer, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+from app.database.session import Base
 
-class Stock(Asset): 
+class Stock(Base):
+    __tablename__ = "stocks"
 
-    def __init__(
-            self,
-            ticker: str,
-            name: str,
-            sector: str | None = None,
-            shares_outstanding: int | None = None,
-            dividend_policy: str | None = None,
-            id: int | None = None,
-            isin: str | None = None,
-    ):
-        super().__init__(
-            ticker = ticker,
-            name = name,
-            asset_type=AssetType.STOCK,
-            id = id,
-            isin = isin,
-        ) 
-
-        if shares_outstanding is not None and shares_outstanding < 0:
-            raise ValueError("Shares outstanding cannot be negative")
-        
-        self.sector = sector.strip() if sector else None
-        self.shares_outstanding = shares_outstanding
-        self.dividend_policy = dividend_policy.strip() if dividend_policy else None
-
-    @property
-    def has_dividends(self) -> bool:
-        return bool(self.dividend_policy and self.dividend_policy.lower() != "none")
-
-    def __repr__(self) -> str:
-        return f"<Stock {self.ticker} ({self.name})>"
+    id: Mapped[int] = mapped_column(ForeignKey("assets.id"), primary_key=True)
+    sector: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    shares_outstanding: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    dividend_policy: Mapped[str | None] = mapped_column(String(255), nullable=True)

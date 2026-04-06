@@ -1,8 +1,8 @@
 from app.database.session import engine, Base
-from app.orm.user_orm import UserORM
+from app.models.user import User
 
 # импортируем ORM-модели, чтобы SQLAlchemy их увидел
-from app.orm.user_orm import UserORM
+from app.models.user import User
 
 
 async def init_db():

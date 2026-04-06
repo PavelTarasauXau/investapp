@@ -4,7 +4,6 @@ from typing import Generic, TypeVar
 T = TypeVar("T")
 
 class AbstractRepository(ABC, Generic[T]):
-
     @abstractmethod
     async def create(self, entity: T) -> T:
         pass
@@ -15,6 +14,10 @@ class AbstractRepository(ABC, Generic[T]):
 
     @abstractmethod
     async def list_all(self) -> list[T]:
+        pass
+
+    @abstractmethod
+    async def update(self, entity_id: int, data: dict) -> T | None:
         pass
 
     @abstractmethod

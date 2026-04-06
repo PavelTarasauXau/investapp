@@ -1,75 +1,20 @@
-from enum import Enum
 from datetime import datetime, timezone
+from enum import Enum
+from sqlalchemy import String, DateTime, Boolean, ForeignKey, Enum as SAEnum
+from sqlalchemy.orm import Mapped, mapped_column
+from app.database.session import Base
+from enums import Currency
 
+class Portfolio(Base):
+    __tablename__ = "portfolios"
 
-class Currency(Enum):
-    USD = "USD"
-    EUR = "EUR"
-    BYN = "BYN"
-    
-    def __str__(self):
-        return self.value
-
-
-class Portfolio:
-    def __init__(        
-            self,
-            user_id: int,
-            name: str,
-            currency: Currency,
-            id: int | None = None,
-            description: str | None = None,
-            created_at: datetime | None = None,
-            is_active: bool = True
-        ):
-
-        if not name or not name.strip():
-            raise ValueError("Portfolio name cannot be empty")
-        self.name = name.strip()
-        
-        if not isinstance(currency, Currency):
-            raise ValueError("Currency must be a Currency enum value")
-        
-        self.id = id
-        self.user_id = user_id
-        self.currency = currency
-        self.description = description.strip() if description else None
-        self.created_at = created_at or datetime.now(timezone.utc)
-        self.is_active = is_active
-
-    @property
-    def display_name(self) -> str:
-        return f"{self.name} ({self.currency.value})"
-
-    def deactivate(self):
-        self.is_active = False
-    
-    def activate(self):
-        self.is_active = True
-    
-    def belongs_to(self, user_id: int) -> bool:
-        return self.user_id == user_id
-    
-    @classmethod
-    def create_default(cls, user_id: int, currency: Currency = Currency.USD) -> "Portfolio":
-        return cls(
-            user_id=user_id,
-            name="Main",
-            currency=currency
-        )
-    
-    def __repr__(self):
-        return f"<Portfolio {self.display_name}>"
-        
-    def rename(self, new_name: str):
-        if not new_name.strip():
-            raise ValueError ("Name field cant be empty")
-        else:
-            self.name = new_name.strip()
-
-
-    def change_currency(self, new_currency):
-        if not isinstance(new_currency, Currency):
-            raise ValueError("Invalid currency")
-        else:
-            self.currency = new_currency
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    currency: Mapped[Currency] = mapped_column(SAEnum(Currency), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc)
+    )
