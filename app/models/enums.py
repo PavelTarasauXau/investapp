@@ -10,3 +10,7 @@ class Currency(str, Enum):
     USD = "USD"
     EUR = "EUR"
     BYN = "BYN"
+
+class UserRole(str, Enum):
+    INVESTOR = "investor"
+    ADMIN = "admin"

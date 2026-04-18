@@ -1,28 +1,57 @@
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import override
 from app.models.transaction import Transaction
 from app.repositories.abstract_repository import AbstractRepository
-from typing import override
-
 
 class TransactionRepository(AbstractRepository[Transaction]):
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
     @override
-    def create(self, entity: Transaction) -> Transaction:
-        raise NotImplementedError
+    async def create(self, entity: Transaction) -> Transaction:
+        self.session.add(entity)
+        await self.session.commit()
+        await self.session.refresh(entity)
+        return entity
 
     @override
-    def get_by_id(self, entity_id: int) -> Transaction | None:
-        raise NotImplementedError
+    async def get_by_id(self, entity_id: int) -> Transaction | None:
+        return await self.session.get(Transaction, entity_id)
 
     @override
-    def list_all(self) -> list[Transaction]:
-        raise NotImplementedError
+    async def list_all(self) -> list[Transaction]:
+        result = await self.session.execute(select(Transaction))
+        return list(result.scalars().all())
 
     @override
-    def delete(self, entity_id: int) -> bool:
-        raise NotImplementedError
+    async def update(self, entity_id: int, data: dict) -> Transaction | None:
+        transaction = await self.session.get(Transaction, entity_id)
+        if transaction is None:
+            return None
+        for key, value in data.items():
+            setattr(transaction, key, value)
+        await self.session.commit()
+        await self.session.refresh(transaction)
+        return transaction
 
-    def get_by_portfolio_id(self, portfolio_id: int) -> list[Transaction]:
-        raise NotImplementedError
+    @override
+    async def delete(self, entity_id: int) -> bool:
+        transaction = await self.session.get(Transaction, entity_id)
+        if transaction is None:
+            return False
+        await self.session.delete(transaction)
+        await self.session.commit()
+        return True
 
-    def get_by_asset_id(self, asset_id: int) -> list[Transaction]:
-        raise NotImplementedError
+    async def get_by_portfolio_id(self, portfolio_id: int) -> list[Transaction]:
+        result = await self.session.execute(
+            select(Transaction).where(Transaction.portfolio_id == portfolio_id)
+        )
+        return list(result.scalars().all())
+
+    async def get_by_asset_id(self, asset_id: int) -> list[Transaction]:
+        result = await self.session.execute(
+            select(Transaction).where(Transaction.asset_id == asset_id)
+        )
+        return list(result.scalars().all())
