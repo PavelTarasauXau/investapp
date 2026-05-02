@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, field_validator, computed_field
-from app.models.portfolio import Currency
+from app.models.enums import Currency
 
 class PortfolioCreate(BaseModel):
     name: str

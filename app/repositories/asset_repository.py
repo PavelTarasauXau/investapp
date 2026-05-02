@@ -12,8 +12,8 @@ class AssetRepository(AbstractRepository[Asset]):
     @override
     async def create(self, entity: Asset) -> Asset:
         self.session.add(entity)
-        await self.session.commit()
-        await self.session.refresh(entity)
+        await self.session.commit()        #Отправляем в бд, получаем обратно сгенерированный id. Асинхронный метод, нужно ждать пока бд подтвердит запись
+        await self.session.refresh(entity) #Обновляет объект в памяти новыми данными
         return entity
 
     @override

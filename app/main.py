@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 import uvicorn
 from app.database.init_db import init_db
+from app.api.users import router as users_router
 
 app = FastAPI(title="InvestApp")
 
 @app.on_event("startup")
 async def startup():
-    await init_db()  # создаёт таблицы при старте если их нет
+    await init_db()
+
+app.include_router(users_router)
 
 @app.get("/")
 def read_root():
