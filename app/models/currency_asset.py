@@ -1,9 +1,9 @@
+from __future__ import annotations
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.session import Base
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -22,3 +22,5 @@ class CurrencyAsset(Base):
     symbol: Mapped[str | None] = mapped_column(String(10), nullable=True)
 
     asset: Mapped["Asset"] = relationship(back_populates="currency_asset")
+
+    #вот с валютами надо разобраться, потому что сейчас две таблицы в бд, одна из которых просто висит без связей

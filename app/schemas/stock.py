@@ -1,10 +1,8 @@
 from pydantic import BaseModel, field_validator, computed_field
 from app.schemas.asset import AssetResponse
+from app.schemas.asset import AssetCreate, AssetResponse
 
-class StockCreate(BaseModel):
-    ticker: str
-    name: str
-    isin: str | None = None
+class StockDetailsCreate(BaseModel):
     sector: str | None = None
     shares_outstanding: int | None = None
     dividend_policy: str | None = None
@@ -19,10 +17,18 @@ class StockCreate(BaseModel):
     def strip_strings(cls, v):
         return v.strip() if v else None
 
-class StockResponse(AssetResponse):
+
+class StockCreate(BaseModel):
+    asset: AssetCreate
+    stock: StockDetailsCreate
+
+class StockResponse(BaseModel):
+    asset: AssetResponse
     sector: str | None
     shares_outstanding: int | None
     dividend_policy: str | None
+
+    model_config = {"from_attributes": True}
 
     @computed_field
     def has_dividends(self) -> bool:

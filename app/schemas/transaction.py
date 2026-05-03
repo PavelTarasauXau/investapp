@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from pydantic import BaseModel, field_validator, computed_field
-from app.models.transaction import TransactionType
+from app.models.enums import TransactionType
 
 class TransactionCreate(BaseModel):
     portfolio_id: int

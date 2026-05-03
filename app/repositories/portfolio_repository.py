@@ -49,3 +49,14 @@ class PortfolioRepository(AbstractRepository[Portfolio]):
             select(Portfolio).where(Portfolio.user_id == user_id)
         )
         return list(result.scalars().all())
+    
+    async def get_active_by_user_id(self, user_id: int) -> list[Portfolio]:
+        result = await self.session.execute(
+            select(Portfolio)
+            .where(
+                Portfolio.user_id == user_id,
+                Portfolio.is_active.is_(True)
+            )
+            .order_by(Portfolio.created_at.desc())
+        )
+        return list(result.scalars().all())

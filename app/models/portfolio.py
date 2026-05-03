@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, timezone
 
 from sqlalchemy import String, DateTime, Boolean, ForeignKey, Enum as SAEnum
@@ -6,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.session import Base
 from app.models.enums import Currency
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

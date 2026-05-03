@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
@@ -6,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.session import Base
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,9 +26,13 @@ class Bond(Base):
     coupon_frequency: Mapped[int] = mapped_column(Integer, nullable=False)
     maturity_date: Mapped[date] = mapped_column(Date, nullable=False)
 
-    asset: Mapped["Asset"] = relationship(back_populates="bond")
+    asset: Mapped["Asset"] = relationship(
+        "Asset",
+        back_populates="bond"
+    )
 
     coupon_payments: Mapped[list["CouponPayment"]] = relationship(
+        "CouponPayment",
         back_populates="bond",
         cascade="all, delete-orphan"
     )

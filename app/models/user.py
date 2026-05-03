@@ -1,10 +1,10 @@
+from __future__ import annotations
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, Enum as SAEnum
 from datetime import datetime, timezone
 from app.database.session import Base
 from app.models.enums import UserRole
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

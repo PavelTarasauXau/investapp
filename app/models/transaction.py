@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -7,7 +8,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.session import Base
 from app.models.enums import TransactionType
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -50,6 +50,12 @@ class Transaction(Base):
         nullable=False
     )
 
-    portfolio: Mapped["Portfolio"] = relationship(back_populates="transactions")
+    portfolio: Mapped["Portfolio"] = relationship(
+        "Portfolio",
+        back_populates="transactions"
+    )
 
-    asset: Mapped["Asset"] = relationship(back_populates="transactions")
+    asset: Mapped["Asset"] = relationship(
+        "Asset",
+        back_populates="transactions"
+    )

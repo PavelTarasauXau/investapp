@@ -4,6 +4,10 @@ from typing import override
 from app.models.asset import Asset
 from app.models.enums import AssetType
 from app.repositories.abstract_repository import AbstractRepository
+from app.models.stock import Stock
+from app.models.bond import Bond
+from app.models.etf import ETF
+from app.models.currency_asset import CurrencyAsset
 
 class AssetRepository(AbstractRepository[Asset]):
     def __init__(self, session: AsyncSession):
@@ -56,3 +60,65 @@ class AssetRepository(AbstractRepository[Asset]):
             select(Asset).where(Asset.asset_type == asset_type)
         )
         return list(result.scalars().all())
+    
+    async def create_stock(self, asset: Asset, stock: Stock) -> Asset:
+        self.session.add(asset)
+        await self.session.flush()
+
+        stock.asset_id = asset.id
+        self.session.add(stock)
+
+        await self.session.commit()
+        await self.session.refresh(asset)
+        return asset
+
+
+    async def create_bond(self, asset: Asset, bond: Bond) -> Asset:
+        self.session.add(asset)
+        await self.session.flush()
+
+        bond.asset_id = asset.id
+        self.session.add(bond)
+
+        await self.session.commit()
+        await self.session.refresh(asset)
+        return asset
+
+
+    async def create_etf(self, asset: Asset, etf: ETF) -> Asset:
+        self.session.add(asset)
+        await self.session.flush()
+
+        etf.asset_id = asset.id
+        self.session.add(etf)
+
+        await self.session.commit()
+        await self.session.refresh(asset)
+        return asset
+
+
+    async def create_currency(self, asset: Asset, currency: CurrencyAsset) -> Asset:
+        self.session.add(asset)
+        await self.session.flush()
+
+        currency.asset_id = asset.id
+        self.session.add(currency)
+
+        await self.session.commit()
+        await self.session.refresh(asset)
+        return asset
+    
+    async def get_stock_details(self, asset_id: int) -> Stock | None:
+        return await self.session.get(Stock, asset_id)
+
+
+    async def get_bond_details(self, asset_id: int) -> Bond | None:
+        return await self.session.get(Bond, asset_id)
+
+
+    async def get_etf_details(self, asset_id: int) -> ETF | None:
+        return await self.session.get(ETF, asset_id)
+
+
+    async def get_currency_details(self, asset_id: int) -> CurrencyAsset | None:
+        return await self.session.get(CurrencyAsset, asset_id)

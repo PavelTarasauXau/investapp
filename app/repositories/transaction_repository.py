@@ -44,14 +44,33 @@ class TransactionRepository(AbstractRepository[Transaction]):
         await self.session.commit()
         return True
 
-    async def get_by_portfolio_id(self, portfolio_id: int) -> list[Transaction]:
-        result = await self.session.execute(
-            select(Transaction).where(Transaction.portfolio_id == portfolio_id)
-        )
-        return list(result.scalars().all())
-
     async def get_by_asset_id(self, asset_id: int) -> list[Transaction]:
         result = await self.session.execute(
-            select(Transaction).where(Transaction.asset_id == asset_id)
+            select(Transaction)
+            .where(Transaction.asset_id == asset_id)
+            .order_by(Transaction.transaction_date.desc())
+        )
+        return list(result.scalars().all())
+    
+    async def get_by_portfolio_id(self, portfolio_id: int) -> list[Transaction]:
+        result = await self.session.execute(
+            select(Transaction)
+            .where(Transaction.portfolio_id == portfolio_id)
+            .order_by(Transaction.transaction_date.desc())
+        )
+        return list(result.scalars().all())
+    
+    async def get_by_portfolio_and_asset(
+        self,
+        portfolio_id: int,
+        asset_id: int
+    ) -> list[Transaction]:
+        result = await self.session.execute(
+            select(Transaction)
+            .where(
+                Transaction.portfolio_id == portfolio_id,
+                Transaction.asset_id == asset_id
+            )
+            .order_by(Transaction.transaction_date.desc())
         )
         return list(result.scalars().all())

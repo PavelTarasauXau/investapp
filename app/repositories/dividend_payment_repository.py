@@ -43,9 +43,11 @@ class DividendPaymentRepository(AbstractRepository[DividendPayment]):
         await self.session.delete(payment)
         await self.session.commit()
         return True
-
+    
     async def get_by_stock_id(self, stock_id: int) -> list[DividendPayment]:
         result = await self.session.execute(
-            select(DividendPayment).where(DividendPayment.stock_id == stock_id)
+            select(DividendPayment)
+            .where(DividendPayment.stock_id == stock_id)
+            .order_by(DividendPayment.payment_date.asc())
         )
         return list(result.scalars().all())

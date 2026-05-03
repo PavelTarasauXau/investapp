@@ -1,11 +1,9 @@
 from decimal import Decimal
 from pydantic import BaseModel, field_validator, computed_field
 from app.schemas.asset import AssetResponse
+from app.schemas.asset import AssetCreate, AssetResponse
 
-class ETFCreate(BaseModel):
-    ticker: str
-    name: str
-    isin: str | None = None
+class ETFDetailsCreate(BaseModel):
     provider: str
     expense_ratio: Decimal | None = None
     benchmark_index: str | None = None
@@ -26,6 +24,11 @@ class ETFCreate(BaseModel):
     @field_validator("trading_currency")
     def currency_upper(cls, v):
         return v.strip().upper() if v else None
+
+
+class ETFCreate(BaseModel):
+    asset: AssetCreate
+    etf: ETFDetailsCreate
 
 class ETFResponse(AssetResponse):
     provider: str

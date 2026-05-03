@@ -7,6 +7,7 @@ class AssetCreate(BaseModel):
     name: str
     asset_type: AssetType
     isin: str | None = None
+    description: str | None = None
 
     @field_validator("ticker")
     def ticker_valid(cls, v):
@@ -30,6 +31,7 @@ class AssetResponse(BaseModel):
     name: str
     asset_type: AssetType
     isin: str | None
+    description: str | None = None
 
     @computed_field
     def is_stock(self) -> bool:

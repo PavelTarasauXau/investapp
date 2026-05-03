@@ -1,3 +1,4 @@
+from __future__ import annotations
 from decimal import Decimal
 
 from sqlalchemy import String, Numeric, ForeignKey
@@ -5,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.session import Base
 
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

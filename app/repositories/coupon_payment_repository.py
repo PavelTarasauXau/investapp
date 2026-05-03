@@ -43,9 +43,11 @@ class CouponPaymentRepository(AbstractRepository[CouponPayment]):
         await self.session.delete(payment)
         await self.session.commit()
         return True
-
+    
     async def get_by_bond_id(self, bond_id: int) -> list[CouponPayment]:
         result = await self.session.execute(
-            select(CouponPayment).where(CouponPayment.bond_id == bond_id)
+            select(CouponPayment)
+            .where(CouponPayment.bond_id == bond_id)
+            .order_by(CouponPayment.payment_date.asc())
         )
         return list(result.scalars().all())

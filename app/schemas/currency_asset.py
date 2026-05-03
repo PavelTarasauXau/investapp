@@ -1,9 +1,7 @@
 from pydantic import BaseModel, field_validator
-from app.schemas.asset import AssetResponse
+from app.schemas.asset import AssetCreate, AssetResponse
 
-class CurrencyAssetCreate(BaseModel):
-    ticker: str
-    name: str
+class CurrencyDetailsCreate(BaseModel):
     iso4217: str
     country: str | None = None
     symbol: str | None = None
@@ -18,6 +16,11 @@ class CurrencyAssetCreate(BaseModel):
     @field_validator("country", "symbol")
     def strip_strings(cls, v):
         return v.strip() if v else None
+
+
+class CurrencyAssetCreate(BaseModel):
+    asset: AssetCreate
+    currency: CurrencyDetailsCreate
 
 class CurrencyAssetResponse(AssetResponse):
     iso4217: str
