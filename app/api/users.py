@@ -1,32 +1,65 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.database.session import get_session
-from app.models.user import User
-from app.models.enums import UserRole
 from app.repositories.user_repository import UserRepository
+from app.services.user_service import UserService
 from app.schemas.user import UserCreate, UserResponse
-from app.core.security import hash_password
 
-router = APIRouter(prefix="/users", tags=["users"])
 
-@router.post("/register", response_model=UserResponse, status_code=201)
-async def register(data: UserCreate, session: AsyncSession = Depends(get_session)):
-    repo = UserRepository(session)
-    existing = await repo.get_by_email(data.email)
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-    user = User(
-        email=data.email.lower().strip(),
-        full_name=data.full_name,
-        password_hash=hash_password(data.password),
-        user_role=UserRole.INVESTOR,
-    )
-    return await repo.create(user)
+router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+)
 
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
-    repo = UserRepository(session)
-    user = await repo.get_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+
+def get_user_service(
+    session: AsyncSession = Depends(get_session),
+) -> UserService:
+    user_repo = UserRepository(session)
+    return UserService(user_repo)
+
+
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def register_user(
+    data: UserCreate,
+    service: UserService = Depends(get_user_service),
+):
+    try:
+        return await service.register_user(data)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+
+@router.get(
+    "/{user_id}",
+    response_model=UserResponse,
+)
+async def get_user_by_id(
+    user_id: int,
+    service: UserService = Depends(get_user_service),
+):
+    try:
+        return await service.get_by_id(user_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+
+@router.get(
+    "/",
+    response_model=list[UserResponse],
+)
+async def list_users(
+    service: UserService = Depends(get_user_service),
+):
+    return await service.list_all()
