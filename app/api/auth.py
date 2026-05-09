@@ -11,6 +11,7 @@ from app.schemas.auth import LoginRequest
 from app.schemas.user import UserCreate, UserResponse
 
 from app.core.security import security
+from authx import TokenPayload
 
 
 router = APIRouter(
@@ -73,10 +74,10 @@ async def login(
 
 @router.get("/me")
 async def get_me(
-    uid=Depends(security.access_token_required),
+    payload: TokenPayload = Depends(security.access_token_required),
     service: UserService = Depends(get_user_service),
 ):
-    user = await service.get_by_id(int(uid))
+    user = await service.get_by_id(int(payload.sub))
 
     return {
         "id": user.id,

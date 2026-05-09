@@ -1,11 +1,158 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base.html" %} {% block title %}InvestApp — учёт инвестиционного
+портфеля{% endblock %} {% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">ПЛАТФОРМА УЧЁТА ИНВЕСТИЦИЙ</p>
+
+    <h1>
+      КОНТРОЛИРУЙТЕ<br />
+      <span>СВОИ АКТИВЫ.</span><br />
+      АНАЛИЗИРУЙТЕ ПОРТФЕЛЬ.
+    </h1>
+
+    <p class="hero-text">
+      InvestApp помогает вести учёт инвестиционных портфелей, фиксировать сделки
+      покупки и продажи, отслеживать активы, дивиденды, купоны и структуру
+      портфеля.
+    </p>
+
+    <div class="hero-stats">
+      <div>
+        <strong>4</strong>
+        <span>типа активов</span>
+      </div>
+      <div>
+        <strong>∞</strong>
+        <span>портфелей</span>
+      </div>
+      <div>
+        <strong>JWT</strong>
+        <span>защита API</span>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="#auth" class="btn btn-primary">НАЧАТЬ РАБОТУ →</a>
+      <a href="/docs" class="btn btn-outline">ПОСМОТРЕТЬ API</a>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <div class="panel-top">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="metric">
+      <p>Стоимость портфеля</p>
+      <strong>$24,810.00</strong>
+      <span>+12.4% за период</span>
+    </div>
+
+    <div class="bars">
+      <div style="height: 72%"></div>
+      <div style="height: 45%"></div>
+      <div style="height: 88%"></div>
+      <div style="height: 60%"></div>
+      <div style="height: 34%"></div>
+    </div>
+
+    <div class="asset-list">
+      <div>
+        <span>AAPL</span>
+        <b>10 шт.</b>
+      </div>
+      <div>
+        <span>VOO</span>
+        <b>4 шт.</b>
+      </div>
+      <div>
+        <span>USD</span>
+        <b>1200</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="auth" class="auth-section">
+  <div class="auth-card">
+    <div>
+      <p class="eyebrow">АККАУНТ</p>
+      <h2>Войти или создать профиль</h2>
+      <p class="muted">
+        Для тестирования можно зарегистрировать нового пользователя, затем
+        выполнить вход и перейти в dashboard.
+      </p>
+    </div>
+
+    <div class="forms-grid">
+      <form id="register-form" class="form-box">
+        <h3>Регистрация</h3>
+
+        <label>
+          Email
+          <input
+            type="email"
+            name="email"
+            placeholder="user@example.com"
+            required
+          />
+        </label>
+
+        <label>
+          Полное имя
+          <input
+            type="text"
+            name="full_name"
+            placeholder="Pavel Tarasov"
+            required
+          />
+        </label>
+
+        <label>
+          Пароль
+          <input
+            type="password"
+            name="password"
+            placeholder="Минимум 6 символов"
+            required
+          />
+        </label>
+
+        <button class="btn btn-primary" type="submit">СОЗДАТЬ АККАУНТ</button>
+      </form>
+
+      <form id="login-form" class="form-box">
+        <h3>Вход</h3>
+
+        <label>
+          Email
+          <input
+            type="email"
+            name="email"
+            placeholder="user@example.com"
+            required
+          />
+        </label>
+
+        <label>
+          Пароль
+          <input
+            type="password"
+            name="password"
+            placeholder="Ваш пароль"
+            required
+          />
+        </label>
+
+        <button class="btn btn-outline" type="submit">ВОЙТИ</button>
+      </form>
+    </div>
+
+    <p id="auth-message" class="message"></p>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', path='js/auth.js') }}"></script>
+{% endblock %}

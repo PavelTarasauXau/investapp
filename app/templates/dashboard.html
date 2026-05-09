@@ -1,11 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base.html" %} {% block title %}Dashboard — InvestApp{% endblock %}
+{% block content %}
+<section class="page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</p>
+      <h1>Ваши портфели</h1>
+      <p class="muted" id="user-info">Загрузка пользователя...</p>
+    </div>
+
+    <button class="btn btn-outline" id="logout-btn">ВЫЙТИ</button>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Создать портфель</h2>
+        <span>NEW</span>
+      </div>
+
+      <form id="portfolio-form" class="form-box form-flat">
+        <label>
+          Название
+          <input
+            type="text"
+            name="name"
+            placeholder="Main Portfolio"
+            required
+          />
+        </label>
+
+        <label>
+          Валюта
+          <select name="currency" required>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="BYN">BYN</option>
+            <option value="RUB">RUB</option>
+          </select>
+        </label>
+
+        <label>
+          Описание
+          <input
+            type="text"
+            name="description"
+            placeholder="Долгосрочный инвестиционный портфель"
+          />
+        </label>
+
+        <button class="btn btn-primary" type="submit">СОЗДАТЬ</button>
+      </form>
+
+      <p id="dashboard-message" class="message"></p>
+    </section>
+
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Обзор</h2>
+        <span>STATUS</span>
+      </div>
+
+      <div class="summary-list">
+        <div>
+          <span>Пользователь</span>
+          <strong id="summary-user">—</strong>
+        </div>
+        <div>
+          <span>Всего портфелей</span>
+          <strong id="summary-portfolios">—</strong>
+        </div>
+        <div>
+          <span>Активных</span>
+          <strong id="summary-active">—</strong>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="dashboard-card portfolios-section">
+    <div class="section-title">
+      <h2>Список портфелей</h2>
+      <span>PORTFOLIOS</span>
+    </div>
+
+    <div id="portfolios-list" class="cards-list">
+      <p class="muted">Загрузка портфелей...</p>
+    </div>
+  </section>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', path='js/dashboard.js') }}"></script>
+{% endblock %}

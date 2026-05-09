@@ -1,13 +1,21 @@
 from authx import AuthXConfig, AuthX
 from passlib.context import CryptContext
+from app.config import settings
 
 
 config = AuthXConfig()
 
-config.JWT_SECRET_KEY = "super-secret-key-change-this"
-config.JWT_ACCESS_COOKIE_NAME = "access_token"
+config.JWT_SECRET_KEY = settings.JWT_SECRET_KEY
+
 config.JWT_TOKEN_LOCATION = ["headers"]
+
+config.JWT_ACCESS_COOKIE_NAME = "access_token"
+
 config.JWT_ALGORITHM = "HS256"
+
+config.JWT_HEADER_TYPE = "Bearer"
+
+config.JWT_HEADER_NAME = "Authorization"
 
 
 security = AuthX(config=config)

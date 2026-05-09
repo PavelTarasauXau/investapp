@@ -1,11 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base.html" %} {% block title %}Портфель — InvestApp{% endblock %} {%
+block content %}
+<section class="page" data-portfolio-id="{{ portfolio_id }}">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">ПОРТФЕЛЬ</p>
+      <h1 id="portfolio-title">Загрузка...</h1>
+      <p class="muted" id="portfolio-description">Получаем данные портфеля</p>
+    </div>
+
+    <div class="header-actions">
+      <a class="btn btn-outline" href="/dashboard">НАЗАД</a>
+      <a class="btn btn-primary" href="/analytics/{{ portfolio_id }}"
+        >АНАЛИТИКА</a
+      >
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Новая операция</h2>
+        <span>TRADE</span>
+      </div>
+
+      <form id="transaction-form" class="form-box form-flat">
+        <label>
+          Актив
+          <select name="asset_id" id="asset-select" required></select>
+        </label>
+
+        <label>
+          Тип операции
+          <select name="transaction_type" required>
+            <option value="buy">Покупка</option>
+            <option value="sell">Продажа</option>
+          </select>
+        </label>
+
+        <label>
+          Количество
+          <input
+            type="number"
+            name="quantity"
+            min="0.0001"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <label>
+          Цена
+          <input
+            type="number"
+            name="price"
+            min="0.0001"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <label>
+          Комиссия
+          <input
+            type="number"
+            name="commission"
+            min="0"
+            step="0.0001"
+            value="0"
+          />
+        </label>
+
+        <button class="btn btn-primary" type="submit">
+          СОХРАНИТЬ ОПЕРАЦИЮ
+        </button>
+      </form>
+
+      <p id="portfolio-message" class="message"></p>
+    </section>
+
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Позиции</h2>
+        <span>ASSETS</span>
+      </div>
+
+      <div id="positions-list" class="mini-list">
+        <p class="muted">Загрузка позиций...</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="dashboard-card portfolios-section">
+    <div class="section-title">
+      <h2>История операций</h2>
+      <span>TRANSACTIONS</span>
+    </div>
+
+    <div id="transactions-list" class="table-like">
+      <p class="muted">Загрузка операций...</p>
+    </div>
+  </section>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', path='js/portfolio.js') }}"></script>
+{% endblock %}

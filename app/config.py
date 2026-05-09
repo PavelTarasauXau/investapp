@@ -1,10 +1,11 @@
-# config.py
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
-    DATABASE_URL: str  # обязательное поле
+    DATABASE_URL: str
+    JWT_SECRET_KEY: str
 
-    class Config:
-        env_file = ".env"  # всё так же читает .env
+    model_config = SettingsConfigDict(env_file=".env")
+
 
 settings = Settings()

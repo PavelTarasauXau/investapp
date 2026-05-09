@@ -1,0 +1,93 @@
+{% extends "base.html" %} {% block title %}Аналитика — InvestApp{% endblock %}
+{% block content %}
+<section class="page" data-portfolio-id="{{ portfolio_id }}">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">АНАЛИТИКА</p>
+      <h1>Обзор портфеля</h1>
+      <p class="muted" id="analytics-subtitle">
+        Загрузка аналитических данных...
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a class="btn btn-outline" href="/dashboard">DASHBOARD</a>
+      <a class="btn btn-primary" href="/portfolio/{{ portfolio_id }}"
+        >ПОРТФЕЛЬ</a
+      >
+    </div>
+  </div>
+
+  <div class="analytics-grid">
+    <section class="dashboard-card metric-card">
+      <span>Позиции</span>
+      <strong id="positions-count">—</strong>
+    </section>
+
+    <section class="dashboard-card metric-card">
+      <span>Операции</span>
+      <strong id="transactions-count">—</strong>
+    </section>
+
+    <section class="dashboard-card metric-card">
+      <span>Дивиденды</span>
+      <strong id="dividends-total">—</strong>
+    </section>
+
+    <section class="dashboard-card metric-card">
+      <span>Результат</span>
+      <strong id="profit-total">—</strong>
+    </section>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Позиции</h2>
+        <span>POSITIONS</span>
+      </div>
+
+      <div id="analytics-positions" class="mini-list">
+        <p class="muted">Загрузка...</p>
+      </div>
+    </section>
+
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Типы активов</h2>
+        <span>ALLOCATION</span>
+      </div>
+
+      <div id="allocation-types" class="mini-list">
+        <p class="muted">Загрузка...</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="dashboard-grid portfolios-section">
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Секторы</h2>
+        <span>SECTORS</span>
+      </div>
+
+      <div id="allocation-sectors" class="mini-list">
+        <p class="muted">Загрузка...</p>
+      </div>
+    </section>
+
+    <section class="dashboard-card">
+      <div class="section-title">
+        <h2>Будущие выплаты</h2>
+        <span>PAYMENTS</span>
+      </div>
+
+      <div id="upcoming-payments" class="mini-list">
+        <p class="muted">Загрузка...</p>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', path='js/analytics.js') }}"></script>
+{% endblock %}

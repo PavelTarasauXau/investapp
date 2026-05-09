@@ -19,7 +19,7 @@ def get_user_service(
     user_repo = UserRepository(session)
     return UserService(user_repo)
 
-
+"""
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -36,7 +36,7 @@ async def register_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
-
+"""
 
 @router.get(
     "/{user_id}",
