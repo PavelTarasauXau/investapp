@@ -40,7 +40,44 @@
     </section>
   </div>
 
-  <div class="dashboard-grid">
+  <section class="dashboard-card portfolios-section charts-section">
+    <div class="section-title">
+      <h2>Графики</h2>
+      <span>CHARTS</span>
+    </div>
+
+    <div class="chart-toolbar">
+      <label>
+        Период
+        <select id="period-select">
+          <option value="all">За всё время</option>
+          <option value="year">Год</option>
+          <option value="month">Месяц</option>
+          <option value="week">Неделя</option>
+          <option value="day">День</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card chart-wide">
+        <h3>Условный результат по операциям</h3>
+        <canvas id="profit-chart"></canvas>
+      </div>
+
+      <div class="chart-card chart-side">
+        <h3>Типы активов</h3>
+        <canvas id="asset-type-chart"></canvas>
+      </div>
+
+      <div class="chart-card chart-side">
+        <h3>Секторы</h3>
+        <canvas id="sector-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <div class="dashboard-grid portfolios-section">
     <section class="dashboard-card">
       <div class="section-title">
         <h2>Позиции</h2>

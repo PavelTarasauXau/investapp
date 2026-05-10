@@ -1,3 +1,10 @@
+const periodSelect = document.querySelector("#period-select");
+
+let profitChart = null;
+let assetTypeChart = null;
+let sectorChart = null;
+let lastSummary = null;
+
 const analyticsPage = document.querySelector(".page");
 const portfolioId = analyticsPage?.dataset.portfolioId;
 
@@ -127,7 +134,25 @@ async function loadAnalytics() {
   renderAllocation(allocationTypes, summary.allocation_by_asset_type || {});
   renderAllocation(allocationSectors, summary.allocation_by_sector || {});
   renderUpcomingPayments(summary.upcoming_payments || {});
+
+  lastSummary = summary;
+
+  const transactions = await API.request(
+    `/analytics/portfolio/${portfolioId}/transactions`,
+  );
+
+  renderProfitChart(transactions, periodSelect?.value || "all");
+  renderAllocationCharts(summary);
 }
+
+periodSelect?.addEventListener("change", async () => {
+  if (!lastSummary) return;
+
+  const transactions = await API.request(
+    `/analytics/portfolio/${portfolioId}/transactions`,
+  );
+  renderProfitChart(transactions, periodSelect.value);
+});
 
 async function initAnalyticsPage() {
   try {
@@ -140,3 +165,207 @@ async function initAnalyticsPage() {
 }
 
 initAnalyticsPage();
+
+/*chart*/
+function destroyChart(chart) {
+  if (chart) {
+    chart.destroy();
+  }
+}
+
+function getPeriodStart(period) {
+  const now = new Date();
+
+  if (period === "day") {
+    now.setDate(now.getDate() - 1);
+    return now;
+  }
+
+  if (period === "week") {
+    now.setDate(now.getDate() - 7);
+    return now;
+  }
+
+  if (period === "month") {
+    now.setMonth(now.getMonth() - 1);
+    return now;
+  }
+
+  if (period === "year") {
+    now.setFullYear(now.getFullYear() - 1);
+    return now;
+  }
+
+  return null;
+}
+
+function filterTransactionsByPeriod(transactions, period) {
+  const start = getPeriodStart(period);
+
+  if (!start) {
+    return transactions;
+  }
+
+  return transactions.filter((tx) => {
+    const txDate = new Date(tx.transaction_date);
+    return txDate >= start;
+  });
+}
+
+function buildProfitSeries(transactions) {
+  const sorted = [...transactions].sort(
+    (a, b) => new Date(a.transaction_date) - new Date(b.transaction_date),
+  );
+
+  let cumulative = 0;
+
+  return sorted.map((tx) => {
+    const amount = Number(tx.quantity) * Number(tx.price);
+    const commission = Number(tx.commission || 0);
+
+    if (tx.transaction_type === "buy") {
+      cumulative -= amount + commission;
+    } else if (tx.transaction_type === "sell") {
+      cumulative += amount - commission;
+    }
+
+    return {
+      date: new Date(tx.transaction_date).toLocaleDateString("ru-RU"),
+      value: cumulative,
+    };
+  });
+}
+
+function getChartOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: "#f5f5f5",
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#9ca3af",
+        },
+        grid: {
+          color: "#262626",
+        },
+      },
+      y: {
+        ticks: {
+          color: "#9ca3af",
+        },
+        grid: {
+          color: "#262626",
+        },
+      },
+    },
+  };
+}
+
+function renderProfitChart(transactions, period = "all") {
+  const ctx = document.querySelector("#profit-chart");
+
+  if (!ctx) return;
+
+  const filtered = filterTransactionsByPeriod(transactions, period);
+  const series = buildProfitSeries(filtered);
+
+  destroyChart(profitChart);
+
+  profitChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: series.map((item) => item.date),
+      datasets: [
+        {
+          label: "Условный результат",
+          data: series.map((item) => item.value),
+          borderColor: "#ffffff",
+          backgroundColor: "rgba(255,255,255,0.08)",
+          tension: 0.35,
+          fill: true,
+        },
+      ],
+    },
+    options: getChartOptions(),
+  });
+}
+
+function renderDoughnutChart(canvasId, allocation, label) {
+  const ctx = document.querySelector(canvasId);
+
+  if (!ctx) return null;
+
+  const entries = Object.entries(allocation || {}).filter(
+    ([, value]) => Number(value) > 0,
+  );
+
+  if (!entries.length) {
+    return null;
+  }
+
+  return new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: entries.map(([key]) => key),
+      datasets: [
+        {
+          label,
+          data: entries.map(([, value]) => Number(value)),
+          backgroundColor: [
+            "#ffffff",
+            "#9ca3af",
+            "#6b7280",
+            "#404040",
+            "#262626",
+          ],
+          borderColor: "#050505",
+          borderWidth: 2,
+          hoverOffset: 8,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: "62%",
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            color: "#f5f5f5",
+            boxWidth: 14,
+            boxHeight: 14,
+            padding: 16,
+            font: {
+              size: 12,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function renderAllocationCharts(summary) {
+  destroyChart(assetTypeChart);
+  destroyChart(sectorChart);
+
+  assetTypeChart = renderDoughnutChart(
+    "#asset-type-chart",
+    summary.allocation_by_asset_type,
+    "Типы активов",
+  );
+
+  sectorChart = renderDoughnutChart(
+    "#sector-chart",
+    summary.allocation_by_sector,
+    "Секторы",
+  );
+}

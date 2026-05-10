@@ -32,6 +32,7 @@ class AnalyticsService:
         transactions = await self.transaction_repo.get_by_portfolio_id(portfolio_id)
 
         positions: dict[int, Decimal] = {}
+        last_prices: dict[int, Decimal] = {}
 
         for tx in transactions:
             positions.setdefault(tx.asset_id, Decimal("0"))
@@ -40,6 +41,8 @@ class AnalyticsService:
                 positions[tx.asset_id] += tx.quantity
             elif tx.transaction_type == TransactionType.SELL:
                 positions[tx.asset_id] -= tx.quantity
+
+            last_prices[tx.asset_id] = tx.price
 
         result = []
 
@@ -51,14 +54,20 @@ class AnalyticsService:
             if asset is None:
                 continue
 
-            result.append({
-                "asset_id": asset.id,
-                "ticker": asset.ticker,
-                "name": asset.name,
-                "asset_type": asset.asset_type.value,
-                "quantity": quantity,
-            })
+            last_price = last_prices.get(asset_id, Decimal("0"))
+            market_value = quantity * last_price
 
+            result.append(
+                {
+                    "asset_id": asset.id,
+                    "ticker": asset.ticker,
+                    "name": asset.name,
+                    "asset_type": asset.asset_type.value,
+                    "quantity": quantity,
+                    "last_price": last_price,
+                    "market_value": market_value,
+                }
+            )
         return result
 
     async def get_portfolio_assets(self, portfolio_id: int) -> list[dict]:
@@ -85,7 +94,7 @@ class AnalyticsService:
         }
 
         for item in positions:
-            allocation[item["asset_type"]] += item["quantity"]
+            allocation[item["asset_type"]] += item["market_value"]
 
         return allocation
 
@@ -105,7 +114,7 @@ class AnalyticsService:
                 sector = stock_details.sector
 
             allocation.setdefault(sector, Decimal("0"))
-            allocation[sector] += item["quantity"]
+            allocation[sector] += item["market_value"]
 
         return allocation
 
