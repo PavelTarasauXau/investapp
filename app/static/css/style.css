@@ -652,6 +652,20 @@ select:focus {
   }
 }
 
+/*это для добавления своих активов*/
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 30px 0;
+}
+
+.form-box h3 {
+  margin: 0;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 /*analytics*/
 
 .analytics-grid {

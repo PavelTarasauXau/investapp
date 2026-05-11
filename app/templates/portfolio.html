@@ -75,6 +75,69 @@ block content %}
         </button>
       </form>
 
+      <div class="section-divider"></div>
+
+      <form id="new-asset-form" class="form-box form-flat">
+        <h3>Добавить новый актив</h3>
+
+        <label>
+          Тикер
+          <input type="text" name="ticker" placeholder="AAPL" required />
+        </label>
+
+        <label>
+          Название
+          <input type="text" name="name" placeholder="Apple Inc." required />
+        </label>
+
+        <label>
+          Тип актива
+          <select name="asset_type" required>
+            <option value="stock">Акция</option>
+            <option value="bond">Облигация</option>
+            <option value="etf">ETF</option>
+            <option value="currency">Валюта</option>
+          </select>
+        </label>
+
+        <label>
+          Цена покупки
+          <input
+            type="number"
+            name="price"
+            min="0.0001"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <label>
+          Количество
+          <input
+            type="number"
+            name="quantity"
+            min="0.0001"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <label>
+          Комиссия
+          <input
+            type="number"
+            name="commission"
+            min="0"
+            step="0.0001"
+            value="0"
+          />
+        </label>
+
+        <button class="btn btn-outline" type="button" id="new-asset-submit">
+          ДОБАВИТЬ АКТИВ И КУПИТЬ
+        </button>
+      </form>
+
       <p id="portfolio-message" class="message"></p>
     </section>
 

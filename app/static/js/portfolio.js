@@ -8,6 +8,8 @@ const transactionForm = document.querySelector("#transaction-form");
 const portfolioMessage = document.querySelector("#portfolio-message");
 const positionsList = document.querySelector("#positions-list");
 const transactionsList = document.querySelector("#transactions-list");
+const newAssetForm = document.querySelector("#new-asset-form");
+const newAssetSubmit = document.querySelector("#new-asset-submit");
 
 function showPortfolioMessage(text, type = "success") {
   portfolioMessage.textContent = text;
@@ -152,5 +154,123 @@ async function initPortfolioPage() {
     showPortfolioMessage(error.message, "error");
   }
 }
+
+function buildAssetPayload(formData) {
+  const assetType = formData.get("asset_type");
+
+  const baseAsset = {
+    ticker: formData.get("ticker"),
+    name: formData.get("name"),
+    asset_type: assetType,
+    isin: null,
+    description: "Created from portfolio page",
+  };
+
+  if (assetType === "stock") {
+    return {
+      endpoint: "/assets/stocks",
+      payload: {
+        asset: baseAsset,
+        stock: {
+          sector: "Unknown",
+          shares_outstanding: null,
+          dividend_policy: null,
+        },
+      },
+    };
+  }
+
+  if (assetType === "bond") {
+    return {
+      endpoint: "/assets/bonds",
+      payload: {
+        asset: baseAsset,
+        bond: {
+          nominal_value: "1000",
+          coupon_rate: "0",
+          coupon_frequency: 1,
+          maturity_date: "2030-01-01",
+        },
+      },
+    };
+  }
+
+  if (assetType === "etf") {
+    return {
+      endpoint: "/assets/etfs",
+      payload: {
+        asset: baseAsset,
+        etf: {
+          provider: "Unknown",
+          expense_ratio: null,
+          benchmark_index: null,
+          trading_currency: "USD",
+        },
+      },
+    };
+  }
+
+  return {
+    endpoint: "/assets/currencies",
+    payload: {
+      asset: baseAsset,
+      currency: {
+        iso4217: formData.get("ticker").toUpperCase().slice(0, 3),
+        country: "Unknown",
+        symbol: formData.get("ticker").toUpperCase().slice(0, 3),
+      },
+    },
+  };
+}
+
+newAssetSubmit?.addEventListener("click", async () => {
+  if (!newAssetForm.reportValidity()) {
+    return;
+  }
+
+  const formData = new FormData(newAssetForm);
+
+  try {
+    const { endpoint, payload } = buildAssetPayload(formData);
+
+    console.log("CREATE ASSET ENDPOINT:", endpoint);
+    console.log("CREATE ASSET PAYLOAD:", payload);
+
+    const asset = await API.request(endpoint, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    console.log("CREATED ASSET:", asset);
+
+    const transactionPayload = {
+      portfolio_id: Number(portfolioId),
+      asset_id: asset.id,
+      transaction_type: "buy",
+      quantity: formData.get("quantity"),
+      price: formData.get("price"),
+      commission: formData.get("commission") || "0",
+    };
+
+    console.log("CREATE TRANSACTION PAYLOAD:", transactionPayload);
+
+    const transaction = await API.request("/transactions/", {
+      method: "POST",
+      body: JSON.stringify(transactionPayload),
+    });
+
+    console.log("CREATED TRANSACTION:", transaction);
+
+    showPortfolioMessage("Новый актив добавлен и куплен.");
+    newAssetForm.reset();
+
+    await loadAssets();
+    await loadPositions();
+    await loadTransactions();
+  } catch (error) {
+    console.error("NEW ASSET ERROR:", error);
+    showPortfolioMessage(error.message, "error");
+  }
+});
 
 initPortfolioPage();
