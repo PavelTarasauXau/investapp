@@ -11,6 +11,14 @@ const transactionsList = document.querySelector("#transactions-list");
 const newAssetForm = document.querySelector("#new-asset-form");
 const newAssetSubmit = document.querySelector("#new-asset-submit");
 
+const assetTypeSelect = document.querySelector(
+  '#new-asset-form select[name="asset_type"]',
+);
+const stockFields = document.querySelector(".stock-fields");
+const bondFields = document.querySelector(".bond-fields");
+const etfFields = document.querySelector(".etf-fields");
+const currencyFields = document.querySelector(".currency-fields");
+
 function showPortfolioMessage(text, type = "success") {
   portfolioMessage.textContent = text;
   portfolioMessage.className = `message ${type}`;
@@ -157,9 +165,10 @@ async function initPortfolioPage() {
 
 function buildAssetPayload(formData) {
   const assetType = formData.get("asset_type");
+  const ticker = String(formData.get("ticker")).trim().toUpperCase();
 
   const baseAsset = {
-    ticker: formData.get("ticker"),
+    ticker,
     name: formData.get("name"),
     asset_type: assetType,
     isin: null,
@@ -172,9 +181,9 @@ function buildAssetPayload(formData) {
       payload: {
         asset: baseAsset,
         stock: {
-          sector: "Unknown",
+          sector: formData.get("sector") || "Unknown",
           shares_outstanding: null,
-          dividend_policy: null,
+          dividend_policy: formData.get("dividend_policy") || null,
         },
       },
     };
@@ -186,10 +195,10 @@ function buildAssetPayload(formData) {
       payload: {
         asset: baseAsset,
         bond: {
-          nominal_value: "1000",
-          coupon_rate: "0",
+          nominal_value: formData.get("nominal_value") || "1000",
+          coupon_rate: formData.get("coupon_rate") || "0",
           coupon_frequency: 1,
-          maturity_date: "2030-01-01",
+          maturity_date: formData.get("maturity_date") || "2030-01-01",
         },
       },
     };
@@ -201,23 +210,25 @@ function buildAssetPayload(formData) {
       payload: {
         asset: baseAsset,
         etf: {
-          provider: "Unknown",
-          expense_ratio: null,
-          benchmark_index: null,
+          provider: formData.get("provider") || "Unknown",
+          expense_ratio: formData.get("expense_ratio") || null,
+          benchmark_index: formData.get("benchmark_index") || null,
           trading_currency: "USD",
         },
       },
     };
   }
 
+  const iso = (formData.get("iso4217") || ticker).toUpperCase().slice(0, 3);
+
   return {
     endpoint: "/assets/currencies",
     payload: {
       asset: baseAsset,
       currency: {
-        iso4217: formData.get("ticker").toUpperCase().slice(0, 3),
-        country: "Unknown",
-        symbol: formData.get("ticker").toUpperCase().slice(0, 3),
+        iso4217: iso,
+        country: formData.get("country") || "Unknown",
+        symbol: formData.get("symbol") || iso,
       },
     },
   };
@@ -272,5 +283,17 @@ newAssetSubmit?.addEventListener("click", async () => {
     showPortfolioMessage(error.message, "error");
   }
 });
+
+function updateAssetExtraFields() {
+  const type = assetTypeSelect?.value;
+
+  stockFields?.classList.toggle("hidden", type !== "stock");
+  bondFields?.classList.toggle("hidden", type !== "bond");
+  etfFields?.classList.toggle("hidden", type !== "etf");
+  currencyFields?.classList.toggle("hidden", type !== "currency");
+}
+
+assetTypeSelect?.addEventListener("change", updateAssetExtraFields);
+updateAssetExtraFields();
 
 initPortfolioPage();

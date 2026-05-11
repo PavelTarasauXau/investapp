@@ -100,6 +100,88 @@ block content %}
           </select>
         </label>
 
+        <div class="asset-extra-fields stock-fields">
+          <label>
+            Сектор
+            <input type="text" name="sector" placeholder="Technology" />
+          </label>
+
+          <label>
+            Дивидендная политика
+            <input
+              type="text"
+              name="dividend_policy"
+              placeholder="Quarterly dividends"
+            />
+          </label>
+        </div>
+
+        <div class="asset-extra-fields bond-fields hidden">
+          <label>
+            Номинал
+            <input
+              type="number"
+              name="nominal_value"
+              step="0.01"
+              placeholder="1000"
+            />
+          </label>
+
+          <label>
+            Купонная ставка
+            <input
+              type="number"
+              name="coupon_rate"
+              step="0.01"
+              placeholder="5.5"
+            />
+          </label>
+
+          <label>
+            Дата погашения
+            <input type="date" name="maturity_date" />
+          </label>
+        </div>
+
+        <div class="asset-extra-fields etf-fields hidden">
+          <label>
+            Провайдер
+            <input type="text" name="provider" placeholder="Vanguard" />
+          </label>
+
+          <label>
+            Комиссия фонда
+            <input
+              type="number"
+              name="expense_ratio"
+              step="0.01"
+              placeholder="0.03"
+            />
+          </label>
+
+          <label>
+            Базовый индекс
+            <input type="text" name="benchmark_index" placeholder="S&P 500" />
+          </label>
+        </div>
+
+        <div class="asset-extra-fields currency-fields hidden">
+          <label>
+            ISO 4217
+            <input type="text" name="iso4217" placeholder="USD" maxlength="3" />
+          </label>
+
+          <label>
+            Страна / эмитент
+            <input type="text" name="country" placeholder="United States" />
+          </label>
+
+          <label>
+            Символ
+            <input type="text" name="symbol" placeholder="$" />
+          </label>
+        </div>
+
         <label>
           Цена покупки
           <input
