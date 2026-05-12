@@ -98,14 +98,14 @@ async def calculate_position(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    @router.get(
-    "/portfolio/{portfolio_id}/type/{transaction_type}",
+@router.get(
+"/portfolio/{portfolio_id}/type/{transaction_type}",
     response_model=list[TransactionResponse],
 )
-    async def get_portfolio_transactions_by_type(
-        portfolio_id: int,
-        transaction_type: TransactionType,
-        service: TransactionService = Depends(get_transaction_service),
+async def get_portfolio_transactions_by_type(
+    portfolio_id: int,
+    transaction_type: TransactionType,
+    service: TransactionService = Depends(get_transaction_service),
     ):
         try:
             return await service.get_portfolio_transactions_by_type(
