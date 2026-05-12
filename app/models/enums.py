@@ -14,12 +14,6 @@ class Currency(str, Enum):
     BYN = "BYN"
     RUB = "RUB"
 
-
-class UserRole(str, Enum):
-    INVESTOR = "investor"
-    ADMIN = "admin"
-
-
 class TransactionType(str, Enum):
     BUY = "buy"
     SELL = "sell"

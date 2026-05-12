@@ -208,6 +208,9 @@ class AnalyticsService:
         upcoming_payments = await self.get_upcoming_payments(portfolio_id)
         realized_profit = await self.get_simple_realized_profit(portfolio_id)
 
+        cash_flow = await self.get_cash_flow(portfolio_id)
+        realized_pnl = await self.get_realized_pnl(portfolio_id)
+
         return {
             "portfolio_id": portfolio_id,
             "positions_count": len(positions),
@@ -217,5 +220,60 @@ class AnalyticsService:
             "allocation_by_sector": allocation_by_sector,
             "received_dividends_total": received_dividends,
             "upcoming_payments": upcoming_payments,
-            "simple_realized_profit": realized_profit,
+            #"simple_realized_profit": realized_profit,
+            "cash_flow": cash_flow,
+            "realized_pnl": realized_pnl,
         }
+    
+    async def get_cash_flow(self, portfolio_id: int) -> Decimal:
+        transactions = await self.transaction_repo.get_by_portfolio_id(portfolio_id)
+
+        cash_flow = Decimal("0")
+
+        for tx in transactions:
+            amount = tx.quantity * tx.price
+
+            if tx.transaction_type == TransactionType.BUY:
+                cash_flow -= amount + tx.commission
+            elif tx.transaction_type == TransactionType.SELL:
+                cash_flow += amount - tx.commission
+
+        return cash_flow
+
+    async def get_realized_pnl(self, portfolio_id: int) -> Decimal:
+        transactions = await self.transaction_repo.get_by_portfolio_id(portfolio_id)
+
+        positions: dict[int, Decimal] = {}
+        total_cost: dict[int, Decimal] = {}
+        realized_pnl = Decimal("0")
+
+        sorted_transactions = sorted(
+            transactions,
+            key=lambda tx: tx.transaction_date,
+        )
+
+        for tx in sorted_transactions:
+            asset_id = tx.asset_id
+            amount = tx.quantity * tx.price
+
+            positions.setdefault(asset_id, Decimal("0"))
+            total_cost.setdefault(asset_id, Decimal("0"))
+
+            if tx.transaction_type == TransactionType.BUY:
+                positions[asset_id] += tx.quantity
+                total_cost[asset_id] += amount + tx.commission
+
+            elif tx.transaction_type == TransactionType.SELL:
+                if positions[asset_id] <= 0:
+                    continue
+
+                average_price = total_cost[asset_id] / positions[asset_id]
+                cost_basis = average_price * tx.quantity
+
+                sell_value = amount - tx.commission
+                realized_pnl += sell_value - cost_basis
+
+                positions[asset_id] -= tx.quantity
+                total_cost[asset_id] -= cost_basis
+
+        return realized_pnl

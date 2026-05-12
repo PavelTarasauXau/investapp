@@ -1,7 +1,6 @@
 from passlib.context import CryptContext
 
 from app.models.user import User
-from app.models.enums import UserRole
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate
 
@@ -24,7 +23,6 @@ class UserService:
             email=data.email.lower().strip(),
             full_name=data.full_name.strip(),
             password_hash=password_hash,
-            user_role=UserRole.INVESTOR,
         )
 
         return await self.user_repo.create(user)

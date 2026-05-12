@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from app.models.currency_asset import CurrencyAsset
 
 
-class Asset(Base):
+class Asset(Base):#не обычный python класс, а таблица базы данных
     __tablename__ = "assets"
 
     id: Mapped[int] = mapped_column(primary_key=True)

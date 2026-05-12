@@ -12,7 +12,8 @@ const analyticsSubtitle = document.querySelector("#analytics-subtitle");
 const positionsCount = document.querySelector("#positions-count");
 const transactionsCount = document.querySelector("#transactions-count");
 const dividendsTotal = document.querySelector("#dividends-total");
-const profitTotal = document.querySelector("#profit-total");
+const cashFlowTotal = document.querySelector("#cash-flow-total");
+const realizedPnlTotal = document.querySelector("#realized-pnl-total");
 
 const analyticsPositions = document.querySelector("#analytics-positions");
 const allocationTypes = document.querySelector("#allocation-types");
@@ -128,7 +129,8 @@ async function loadAnalytics() {
   positionsCount.textContent = summary.positions_count;
   transactionsCount.textContent = summary.transactions_count;
   dividendsTotal.textContent = formatNumber(summary.received_dividends_total);
-  profitTotal.textContent = formatNumber(summary.simple_realized_profit);
+  cashFlowTotal.textContent = formatNumber(summary.cash_flow);
+  realizedPnlTotal.textContent = formatNumber(summary.realized_pnl);
 
   renderPositions(summary.positions || []);
   renderAllocation(allocationTypes, summary.allocation_by_asset_type || {});

@@ -15,7 +15,7 @@ from app.models.transaction import Transaction
 from app.models.dividend_payment import DividendPayment
 from app.models.coupon_payment import CouponPayment
 
-from app.models.enums import AssetType, Currency, TransactionType, UserRole
+from app.models.enums import AssetType, Currency, TransactionType
 
 from app.repositories.user_repository import UserRepository
 from app.repositories.portfolio_repository import PortfolioRepository
@@ -39,7 +39,6 @@ async def main():
                 email="repo_test@example.com",
                 full_name="Repository Test User",
                 password_hash="fake_hash",
-                user_role=UserRole.INVESTOR,
             )
         )
         print("User:", user.id, user.email)

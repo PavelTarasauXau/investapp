@@ -6,7 +6,7 @@ from app.database.session import AsyncSessionLocal
 import app.models
 
 from app.models.user import User
-from app.models.enums import Currency, UserRole
+from app.models.enums import Currency 
 
 from app.repositories.user_repository import UserRepository
 from app.repositories.portfolio_repository import PortfolioRepository
@@ -33,7 +33,6 @@ async def main():
                 email=f"portfolio_test_{suffix}@example.com",
                 full_name="Portfolio Test User",
                 password_hash="fake_hash",
-                user_role=UserRole.INVESTOR,
             )
         )
 

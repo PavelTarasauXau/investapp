@@ -83,5 +83,4 @@ async def get_me(
         "id": user.id,
         "email": user.email,
         "full_name": user.full_name,
-        "role": user.user_role,
     }

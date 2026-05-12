@@ -46,7 +46,6 @@ async def main():
                 email=f"transaction_test_{suffix}@example.com",
                 full_name="Transaction Test User",
                 password_hash="fake_hash",
-                user_role=UserRole.INVESTOR,
             )
         )
 
