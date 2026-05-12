@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import override
 from app.models.transaction import Transaction
 from app.repositories.abstract_repository import AbstractRepository
+from app.models.enums import TransactionType
 
 class TransactionRepository(AbstractRepository[Transaction]):
     def __init__(self, session: AsyncSession):
@@ -73,4 +74,18 @@ class TransactionRepository(AbstractRepository[Transaction]):
             )
             .order_by(Transaction.transaction_date.desc())
         )
+        return list(result.scalars().all())
+    
+    async def get_by_portfolio_id_and_type(
+        self,
+        portfolio_id: int,
+        transaction_type: TransactionType,
+    ) -> list[Transaction]:
+        result = await self.session.execute(
+            select(Transaction)
+            .where(Transaction.portfolio_id == portfolio_id)
+            .where(Transaction.transaction_type == transaction_type)
+            .order_by(Transaction.transaction_date.desc())
+        )
+
         return list(result.scalars().all())

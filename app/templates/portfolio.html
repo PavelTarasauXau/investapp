@@ -241,6 +241,17 @@ block content %}
       <span>TRANSACTIONS</span>
     </div>
 
+    <div class="transactions-filter">
+      <label>
+        Тип операции
+        <select id="transaction-filter">
+          <option value="all">Все операции</option>
+          <option value="buy">Только покупки</option>
+          <option value="sell">Только продажи</option>
+        </select>
+      </label>
+    </div>
+
     <div id="transactions-list" class="table-like">
       <p class="muted">Загрузка операций...</p>
     </div>

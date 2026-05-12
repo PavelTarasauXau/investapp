@@ -18,6 +18,9 @@ const stockFields = document.querySelector(".stock-fields");
 const bondFields = document.querySelector(".bond-fields");
 const etfFields = document.querySelector(".etf-fields");
 const currencyFields = document.querySelector(".currency-fields");
+const transactionFilter = document.querySelector("#transaction-filter");
+
+let portfolioTransactions = [];
 
 function showPortfolioMessage(text, type = "success") {
   portfolioMessage.textContent = text;
@@ -85,38 +88,50 @@ async function loadPositions() {
     .join("");
 }
 
-async function loadTransactions() {
-  const transactions = await API.request(
-    `/transactions/portfolio/${portfolioId}`,
-  );
-
+function renderTransactions(transactions) {
   if (!transactions.length) {
-    transactionsList.innerHTML = `<p class="muted">Операций пока нет.</p>`;
+    transactionsList.innerHTML = `<p class="muted">Операций по выбранному фильтру нет.</p>`;
     return;
   }
 
   transactionsList.innerHTML = `
-        <div class="table-row header">
-            <div>Тип</div>
-            <div>Актив ID</div>
-            <div>Количество</div>
-            <div>Цена</div>
-            <div>Сумма</div>
-        </div>
-        ${transactions
-          .map(
-            (tx) => `
-            <div class="table-row">
-                <div class="tx-type ${tx.transaction_type}">${tx.transaction_type}</div>
-                <div>${tx.asset_id}</div>
-                <div>${tx.quantity}</div>
-                <div>${formatMoney(tx.price)}</div>
-                <div>${formatMoney(Number(tx.quantity) * Number(tx.price))}</div>
-            </div>
+    <div class="table-row header">
+      <div>Тип</div>
+      <div>Актив ID</div>
+      <div>Количество</div>
+      <div>Цена</div>
+      <div>Сумма</div>
+    </div>
+    ${transactions
+      .map(
+        (tx) => `
+          <div class="table-row">
+            <div class="tx-type ${tx.transaction_type}">${tx.transaction_type}</div>
+            <div>${tx.asset_id}</div>
+            <div>${tx.quantity}</div>
+            <div>${formatMoney(tx.price)}</div>
+            <div>${formatMoney(Number(tx.quantity) * Number(tx.price))}</div>
+          </div>
         `,
-          )
-          .join("")}
-    `;
+      )
+      .join("")}
+  `;
+}
+
+async function loadTransactions() {
+  const filterValue = transactionFilter?.value || "all";
+
+  if (filterValue === "all") {
+    portfolioTransactions = await API.request(
+      `/transactions/portfolio/${portfolioId}`,
+    );
+  } else {
+    portfolioTransactions = await API.request(
+      `/transactions/portfolio/${portfolioId}/type/${filterValue}`,
+    );
+  }
+
+  renderTransactions(portfolioTransactions);
 }
 
 transactionForm?.addEventListener("submit", async (event) => {
@@ -295,5 +310,9 @@ function updateAssetExtraFields() {
 
 assetTypeSelect?.addEventListener("change", updateAssetExtraFields);
 updateAssetExtraFields();
+
+transactionFilter?.addEventListener("change", async () => {
+  await loadTransactions();
+});
 
 initPortfolioPage();

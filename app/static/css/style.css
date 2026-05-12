@@ -688,6 +688,11 @@ select:focus {
   letter-spacing: 0.08em;
 }
 
+.transactions-filter {
+  margin-bottom: 20px;
+  max-width: 260px;
+}
+
 /*analytics*/
 
 .analytics-grid {
