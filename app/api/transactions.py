@@ -12,6 +12,7 @@ from app.services.transaction_service import TransactionService
 from app.schemas.transaction import TransactionCreate, TransactionResponse
 from app.models.enums import TransactionType
 from app.schemas.transaction import TransactionResponse
+from app.models.enums import TransactionType, AssetType
 
 
 router = APIRouter(
@@ -111,6 +112,25 @@ async def get_portfolio_transactions_by_type(
             return await service.get_portfolio_transactions_by_type(
                 portfolio_id,
                 transaction_type,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        
+@router.get(
+"/portfolio/{portfolio_id}/filter",
+response_model=list[TransactionResponse],
+)
+async def get_portfolio_transactions_filtered(
+    portfolio_id: int,
+    transaction_type: TransactionType | None = None,
+    asset_type: AssetType | None = None,
+    service: TransactionService = Depends(get_transaction_service),
+    ):
+        try:
+            return await service.get_portfolio_transactions_filtered(
+                portfolio_id=portfolio_id,
+                transaction_type=transaction_type,
+                asset_type=asset_type,
             )
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))

@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import override
 from app.models.transaction import Transaction
 from app.repositories.abstract_repository import AbstractRepository
-from app.models.enums import TransactionType
+from app.models.enums import TransactionType, AssetType
+from app.models.asset import Asset
 
 class TransactionRepository(AbstractRepository[Transaction]):
     def __init__(self, session: AsyncSession):
@@ -87,5 +88,28 @@ class TransactionRepository(AbstractRepository[Transaction]):
             .where(Transaction.transaction_type == transaction_type)
             .order_by(Transaction.transaction_date.desc())
         )
+
+        return list(result.scalars().all())
+    
+    async def get_by_portfolio_filters(
+        self,
+        portfolio_id: int,
+        transaction_type: TransactionType | None = None,
+        asset_type: AssetType | None = None,
+    ) -> list[Transaction]:
+        query = (
+            select(Transaction)
+            .join(Asset, Transaction.asset_id == Asset.id)
+            .where(Transaction.portfolio_id == portfolio_id)
+            .order_by(Transaction.transaction_date.desc())
+        )
+
+        if transaction_type is not None:
+            query = query.where(Transaction.transaction_type == transaction_type)
+
+        if asset_type is not None:
+            query = query.where(Asset.asset_type == asset_type)
+
+        result = await self.session.execute(query)
 
         return list(result.scalars().all())

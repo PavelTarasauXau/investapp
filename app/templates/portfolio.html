@@ -220,6 +220,74 @@ block content %}
         </button>
       </form>
 
+      <div class="section-divider"></div>
+
+      <form id="dividend-form" class="form-box form-flat">
+        <h3>Добавить дивиденд</h3>
+
+        <label>
+          Акция
+          <select name="stock_id" id="dividend-stock-select" required></select>
+        </label>
+
+        <label>
+          Дата фиксации
+          <input type="date" name="record_date" required />
+        </label>
+
+        <label>
+          Дата выплаты
+          <input type="date" name="payment_date" required />
+        </label>
+
+        <label>
+          Дивиденд на акцию
+          <input
+            type="number"
+            name="dividend_per_share"
+            min="0"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <button class="btn btn-outline" type="submit">ДОБАВИТЬ ДИВИДЕНД</button>
+      </form>
+
+      <div class="section-divider"></div>
+
+      <form id="coupon-form" class="form-box form-flat">
+        <h3>Добавить купон</h3>
+
+        <label>
+          Облигация
+          <select name="bond_id" id="coupon-bond-select" required></select>
+        </label>
+
+        <label>
+          Номер купона
+          <input type="number" name="coupon_number" min="1" step="1" required />
+        </label>
+
+        <label>
+          Дата выплаты
+          <input type="date" name="payment_date" required />
+        </label>
+
+        <label>
+          Размер купона
+          <input
+            type="number"
+            name="coupon_amount"
+            min="0"
+            step="0.0001"
+            required
+          />
+        </label>
+
+        <button class="btn btn-outline" type="submit">ДОБАВИТЬ КУПОН</button>
+      </form>
+
       <p id="portfolio-message" class="message"></p>
     </section>
 
@@ -232,6 +300,17 @@ block content %}
       <div id="positions-list" class="mini-list">
         <p class="muted">Загрузка позиций...</p>
       </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section-title">
+        <h2>Выплаты</h2>
+        <span>PAYMENTS</span>
+      </div>
+
+      <div id="payments-list" class="mini-list">
+        <p class="muted">Загрузка выплат...</p>
+      </div>
     </section>
   </div>
 
@@ -241,13 +320,24 @@ block content %}
       <span>TRANSACTIONS</span>
     </div>
 
-    <div class="transactions-filter">
+    <div class="transactions-filters">
       <label>
         Тип операции
         <select id="transaction-filter">
           <option value="all">Все операции</option>
           <option value="buy">Только покупки</option>
           <option value="sell">Только продажи</option>
+        </select>
+      </label>
+
+      <label>
+        Тип актива
+        <select id="asset-type-filter">
+          <option value="all">Все активы</option>
+          <option value="stock">Акции</option>
+          <option value="bond">Облигации</option>
+          <option value="etf">ETF</option>
+          <option value="currency">Валюты</option>
         </select>
       </label>
     </div>

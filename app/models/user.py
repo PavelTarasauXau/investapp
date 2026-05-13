@@ -6,8 +6,8 @@ from app.database.session import Base
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.models.portfolio import Portfolio
+if TYPE_CHECKING: 
+    from app.models.portfolio import Portfolio #Этот импорт работает только для проверки типов в IDE, но не создает реальную зависимость во время выполнения. Это решает проблему циклических импортов
 
 
 class User(Base):

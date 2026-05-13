@@ -9,6 +9,7 @@ from app.repositories.asset_repository import AssetRepository
 
 from app.schemas.transaction import TransactionCreate
 from app.models.enums import TransactionType
+from app.models.enums import TransactionType, AssetType
 
 class TransactionService:
     def __init__(
@@ -106,4 +107,21 @@ class TransactionService:
         return await self.transaction_repo.get_by_portfolio_id_and_type(
             portfolio_id,
             transaction_type,
+        )
+    
+    async def get_portfolio_transactions_filtered(
+        self,
+        portfolio_id: int,
+        transaction_type: TransactionType | None = None,
+        asset_type: AssetType | None = None,
+    ) -> list[Transaction]:
+        portfolio = await self.portfolio_repo.get_by_id(portfolio_id)
+
+        if portfolio is None:
+            raise ValueError("Portfolio not found")
+
+        return await self.transaction_repo.get_by_portfolio_filters(
+            portfolio_id=portfolio_id,
+            transaction_type=transaction_type,
+            asset_type=asset_type,
         )

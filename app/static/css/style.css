@@ -688,9 +688,15 @@ select:focus {
   letter-spacing: 0.08em;
 }
 
-.transactions-filter {
+.transactions-filters {
   margin-bottom: 20px;
-  max-width: 260px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.transactions-filters label {
+  min-width: 220px;
 }
 
 /*analytics*/

@@ -19,8 +19,17 @@ const bondFields = document.querySelector(".bond-fields");
 const etfFields = document.querySelector(".etf-fields");
 const currencyFields = document.querySelector(".currency-fields");
 const transactionFilter = document.querySelector("#transaction-filter");
+const assetTypeFilter = document.querySelector("#asset-type-filter");
+
+const dividendForm = document.querySelector("#dividend-form");
+const couponForm = document.querySelector("#coupon-form");
+const dividendStockSelect = document.querySelector("#dividend-stock-select");
+const couponBondSelect = document.querySelector("#coupon-bond-select");
+const paymentsList = document.querySelector("#payments-list");
 
 let portfolioTransactions = [];
+let assetsCache = [];
+let positionsCache = [];
 
 function showPortfolioMessage(text, type = "success") {
   portfolioMessage.textContent = text;
@@ -46,9 +55,12 @@ async function loadPortfolio() {
 
 async function loadAssets() {
   const assets = await API.request("/assets/");
+  assetsCache = assets;
 
   if (!assets.length) {
     assetSelect.innerHTML = `<option value="">Нет доступных активов</option>`;
+    dividendStockSelect.innerHTML = `<option value="">Нет акций</option>`;
+    couponBondSelect.innerHTML = `<option value="">Нет облигаций</option>`;
     return;
   }
 
@@ -61,12 +73,41 @@ async function loadAssets() {
     `,
     )
     .join("");
+
+  const stocks = assets.filter((asset) => asset.asset_type === "stock");
+  const bonds = assets.filter((asset) => asset.asset_type === "bond");
+
+  dividendStockSelect.innerHTML = stocks.length
+    ? stocks
+        .map(
+          (asset) => `
+            <option value="${asset.id}">
+              ${asset.ticker} — ${asset.name}
+            </option>
+          `,
+        )
+        .join("")
+    : `<option value="">Нет акций</option>`;
+
+  couponBondSelect.innerHTML = bonds.length
+    ? bonds
+        .map(
+          (asset) => `
+            <option value="${asset.id}">
+              ${asset.ticker} — ${asset.name}
+            </option>
+          `,
+        )
+        .join("")
+    : `<option value="">Нет облигаций</option>`;
 }
 
 async function loadPositions() {
   const positions = await API.request(
     `/analytics/portfolio/${portfolioId}/positions`,
   );
+
+  positionsCache = positions;
 
   if (!positions.length) {
     positionsList.innerHTML = `<p class="muted">В портфеле пока нет активов.</p>`;
@@ -88,6 +129,60 @@ async function loadPositions() {
     .join("");
 }
 
+async function loadPayments() {
+  const stocks = positionsCache.filter(
+    (position) => position.asset_type === "stock",
+  );
+
+  const bonds = positionsCache.filter(
+    (position) => position.asset_type === "bond",
+  );
+
+  const dividendRequests = stocks.map(async (stock) => {
+    const dividends = await API.request(`/dividends/stock/${stock.asset_id}`);
+
+    return dividends.map((dividend) => ({
+      type: "Дивиденд",
+      ticker: stock.ticker,
+      date: dividend.payment_date,
+      amount: dividend.dividend_per_share,
+    }));
+  });
+
+  const couponRequests = bonds.map(async (bond) => {
+    const coupons = await API.request(`/coupons/bond/${bond.asset_id}`);
+
+    return coupons.map((coupon) => ({
+      type: "Купон",
+      ticker: bond.ticker,
+      date: coupon.payment_date,
+      amount: coupon.coupon_amount,
+    }));
+  });
+
+  const results = await Promise.all([...dividendRequests, ...couponRequests]);
+  const payments = results.flat();
+
+  if (!payments.length) {
+    paymentsList.innerHTML = `<p class="muted">Выплат пока нет.</p>`;
+    return;
+  }
+
+  paymentsList.innerHTML = payments
+    .map(
+      (payment) => `
+        <div class="mini-item">
+          <div>
+            <strong>${payment.type}</strong>
+            <span>${payment.ticker} • ${payment.date}</span>
+          </div>
+          <strong>${formatMoney(payment.amount)}</strong>
+        </div>
+      `,
+    )
+    .join("");
+}
+
 function renderTransactions(transactions) {
   if (!transactions.length) {
     transactionsList.innerHTML = `<p class="muted">Операций по выбранному фильтру нет.</p>`;
@@ -97,7 +192,7 @@ function renderTransactions(transactions) {
   transactionsList.innerHTML = `
     <div class="table-row header">
       <div>Тип</div>
-      <div>Актив ID</div>
+      <div>Актив</div>
       <div>Количество</div>
       <div>Цена</div>
       <div>Сумма</div>
@@ -107,7 +202,7 @@ function renderTransactions(transactions) {
         (tx) => `
           <div class="table-row">
             <div class="tx-type ${tx.transaction_type}">${tx.transaction_type}</div>
-            <div>${tx.asset_id}</div>
+            <div>${getAssetLabel(tx.asset_id)}</div>
             <div>${tx.quantity}</div>
             <div>${formatMoney(tx.price)}</div>
             <div>${formatMoney(Number(tx.quantity) * Number(tx.price))}</div>
@@ -118,18 +213,37 @@ function renderTransactions(transactions) {
   `;
 }
 
-async function loadTransactions() {
-  const filterValue = transactionFilter?.value || "all";
+function getAssetLabel(assetId) {
+  const asset = assetsCache.find((item) => item.id === assetId);
 
-  if (filterValue === "all") {
-    portfolioTransactions = await API.request(
-      `/transactions/portfolio/${portfolioId}`,
-    );
-  } else {
-    portfolioTransactions = await API.request(
-      `/transactions/portfolio/${portfolioId}/type/${filterValue}`,
-    );
+  if (!asset) {
+    return `ID ${assetId}`;
   }
+
+  return `${asset.ticker} • ${asset.asset_type}`;
+}
+
+async function loadTransactions() {
+  const transactionType = transactionFilter?.value || "all";
+  const assetType = assetTypeFilter?.value || "all";
+
+  const params = new URLSearchParams();
+
+  if (transactionType !== "all") {
+    params.append("transaction_type", transactionType);
+  }
+
+  if (assetType !== "all") {
+    params.append("asset_type", assetType);
+  }
+
+  const queryString = params.toString();
+
+  const url = queryString
+    ? `/transactions/portfolio/${portfolioId}/filter?${queryString}`
+    : `/transactions/portfolio/${portfolioId}/filter`;
+
+  portfolioTransactions = await API.request(url);
 
   renderTransactions(portfolioTransactions);
 }
@@ -171,6 +285,7 @@ async function initPortfolioPage() {
     await loadPortfolio();
     await loadAssets();
     await loadPositions();
+    await loadPayments();
     await loadTransactions();
   } catch (error) {
     console.error(error);
@@ -313,6 +428,66 @@ updateAssetExtraFields();
 
 transactionFilter?.addEventListener("change", async () => {
   await loadTransactions();
+});
+
+transactionFilter?.addEventListener("change", async () => {
+  await loadTransactions();
+});
+
+assetTypeFilter?.addEventListener("change", async () => {
+  await loadTransactions();
+});
+
+dividendForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(dividendForm);
+
+  const payload = {
+    stock_id: Number(formData.get("stock_id")),
+    record_date: formData.get("record_date"),
+    payment_date: formData.get("payment_date"),
+    dividend_per_share: formData.get("dividend_per_share"),
+  };
+
+  try {
+    await API.request("/dividends/", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    showPortfolioMessage("Дивидендная выплата добавлена.");
+    dividendForm.reset();
+    await loadPayments();
+  } catch (error) {
+    showPortfolioMessage(error.message, "error");
+  }
+});
+
+couponForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(couponForm);
+
+  const payload = {
+    bond_id: Number(formData.get("bond_id")),
+    coupon_number: Number(formData.get("coupon_number")),
+    payment_date: formData.get("payment_date"),
+    coupon_amount: formData.get("coupon_amount"),
+  };
+
+  try {
+    await API.request("/coupons/", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    showPortfolioMessage("Купонная выплата добавлена.");
+    couponForm.reset();
+    await loadPayments();
+  } catch (error) {
+    showPortfolioMessage(error.message, "error");
+  }
 });
 
 initPortfolioPage();

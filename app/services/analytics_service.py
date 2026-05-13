@@ -142,44 +142,53 @@ class AnalyticsService:
 
         return total
 
-    async def get_upcoming_payments(self, portfolio_id: int) -> dict:
+    async def get_upcoming_payments(self, portfolio_id: int):
+        portfolio = await self.portfolio_repo.get_by_id(portfolio_id)
+
+        if portfolio is None:
+            raise ValueError("Portfolio not found")
+
         positions = await self.get_portfolio_positions(portfolio_id)
 
-        upcoming_dividends = []
-        upcoming_coupons = []
+        upcoming_payments = []
 
-        for item in positions:
-            if item["asset_type"] == AssetType.STOCK.value:
-                dividends = await self.dividend_repo.get_by_stock_id(item["asset_id"])
+        for position in positions:
+            asset_id = position["asset_id"]
+            ticker = position["ticker"]
+            quantity = position["quantity"]
+            asset_type = position["asset_type"]
+
+            if asset_type == "stock":
+                dividends = await self.dividend_repo.get_by_stock_id(asset_id)
 
                 for dividend in dividends:
-                    if dividend.payment_date > date.today():
-                        upcoming_dividends.append({
-                            "asset_id": item["asset_id"],
-                            "ticker": item["ticker"],
+                    if dividend.payment_date >= date.today():
+                        estimated_amount = quantity * dividend.dividend_per_share
+
+                        upcoming_payments.append({
+                            "type": "Дивиденд",
+                            "ticker": ticker,
                             "payment_date": dividend.payment_date,
-                            "dividend_per_share": dividend.dividend_per_share,
-                            "estimated_amount": item["quantity"] * dividend.dividend_per_share,
+                            "amount": estimated_amount,
                         })
 
-            elif item["asset_type"] == AssetType.BOND.value:
-                coupons = await self.coupon_repo.get_by_bond_id(item["asset_id"])
+            if asset_type == "bond":
+                coupons = await self.coupon_repo.get_by_bond_id(asset_id)
 
                 for coupon in coupons:
-                    if coupon.payment_date > date.today():
-                        upcoming_coupons.append({
-                            "asset_id": item["asset_id"],
-                            "ticker": item["ticker"],
+                    if coupon.payment_date >= date.today():
+                        estimated_amount = quantity * coupon.coupon_amount
+
+                        upcoming_payments.append({
+                            "type": "Купон",
+                            "ticker": ticker,
                             "payment_date": coupon.payment_date,
-                            "coupon_number": coupon.coupon_number,
-                            "coupon_amount": coupon.coupon_amount,
-                            "estimated_amount": item["quantity"] * coupon.coupon_amount,
+                            "amount": estimated_amount,
                         })
 
-        return {
-            "upcoming_dividends": upcoming_dividends,
-            "upcoming_coupons": upcoming_coupons,
-        }
+        upcoming_payments.sort(key=lambda item: item["payment_date"])
+
+        return upcoming_payments
 
     async def get_simple_realized_profit(self, portfolio_id: int) -> Decimal:
         transactions = await self.transaction_repo.get_by_portfolio_id(portfolio_id)

@@ -82,39 +82,23 @@ function renderAllocation(container, allocation) {
     .join("");
 }
 
-function renderUpcomingPayments(data) {
-  const dividends = data?.upcoming_dividends || [];
-  const coupons = data?.upcoming_coupons || [];
-
-  const all = [
-    ...dividends.map((item) => ({
-      type: "Дивиденд",
-      ticker: item.ticker,
-      date: item.payment_date,
-      amount: item.estimated_amount,
-    })),
-    ...coupons.map((item) => ({
-      type: "Купон",
-      ticker: item.ticker,
-      date: item.payment_date,
-      amount: item.estimated_amount,
-    })),
-  ];
-
-  if (!all.length) {
+function renderUpcomingPayments(payments) {
+  if (!payments.length) {
     upcomingPayments.innerHTML = `<p class="muted">Будущих выплат пока нет.</p>`;
     return;
   }
 
-  upcomingPayments.innerHTML = all
+  upcomingPayments.innerHTML = payments
     .map(
-      (item) => `
-        <div class="payment-item">
-            <strong>${item.type} • ${item.ticker}</strong>
-            <span>Дата выплаты: ${item.date}</span>
-            <span>Оценка суммы: ${formatNumber(item.amount)}</span>
+      (payment) => `
+        <div class="mini-item">
+          <div>
+            <strong>${payment.type} • ${payment.ticker}</strong>
+            <span>Дата выплаты: ${payment.payment_date}</span>
+            <span>Оценка суммы: ${formatNumber(payment.amount)}</span>
+          </div>
         </div>
-    `,
+      `,
     )
     .join("");
 }
